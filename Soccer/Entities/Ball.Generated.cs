@@ -22,17 +22,18 @@ namespace Soccer.Entities
         static object mLockObject = new object();
         static System.Collections.Generic.List<string> mRegisteredUnloads = new System.Collections.Generic.List<string>();
         static System.Collections.Generic.List<string> LoadedContentManagers = new System.Collections.Generic.List<string>();
+        protected static Microsoft.Xna.Framework.Graphics.Texture2D SoccerBall;
         
-        private FlatRedBall.Math.Geometry.Circle mCircleInstance;
-        public FlatRedBall.Math.Geometry.Circle CircleInstance
+        private FlatRedBall.Math.Geometry.Circle mCollisionCircle;
+        public FlatRedBall.Math.Geometry.Circle CollisionCircle
         {
             get
             {
-                return mCircleInstance;
+                return mCollisionCircle;
             }
             private set
             {
-                mCircleInstance = value;
+                mCollisionCircle = value;
             }
         }
         private Soccer.Entities.KickIndicator mKickIndicatorInstance;
@@ -47,6 +48,7 @@ namespace Soccer.Entities
                 mKickIndicatorInstance = value;
             }
         }
+        private FlatRedBall.Sprite SpriteInstance;
         public event Action<Soccer.DataTypes.PlatformerValues> BeforeGroundMovementSet;
         public event System.EventHandler AfterGroundMovementSet;
         private Soccer.DataTypes.PlatformerValues mGroundMovement;
@@ -114,6 +116,7 @@ namespace Soccer.Entities
             }
         }
         public float Gravity = -150f;
+        public int SpriteRotationSpeedModifier = 75;
         public int Index { get; set; }
         public bool Used { get; set; }
         private FlatRedBall.Math.Geometry.ShapeCollection mGeneratedCollision;
@@ -142,10 +145,12 @@ namespace Soccer.Entities
         protected virtual void InitializeEntity (bool addToManagers) 
         {
             LoadStaticContent(ContentManagerName);
-            mCircleInstance = new FlatRedBall.Math.Geometry.Circle();
-            mCircleInstance.Name = "mCircleInstance";
+            mCollisionCircle = new FlatRedBall.Math.Geometry.Circle();
+            mCollisionCircle.Name = "mCollisionCircle";
             mKickIndicatorInstance = new Soccer.Entities.KickIndicator(ContentManagerName, false);
             mKickIndicatorInstance.Name = "mKickIndicatorInstance";
+            SpriteInstance = new FlatRedBall.Sprite();
+            SpriteInstance.Name = "SpriteInstance";
             
             PostInitialize();
             if (addToManagers)
@@ -157,15 +162,17 @@ namespace Soccer.Entities
         {
             LayerProvidedByContainer = layerToAddTo;
             FlatRedBall.SpriteManager.AddPositionedObject(this);
-            FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(mCircleInstance, LayerProvidedByContainer);
+            FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(mCollisionCircle, LayerProvidedByContainer);
             mKickIndicatorInstance.ReAddToManagers(LayerProvidedByContainer);
+            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, LayerProvidedByContainer);
         }
         public virtual void AddToManagers (FlatRedBall.Graphics.Layer layerToAddTo) 
         {
             LayerProvidedByContainer = layerToAddTo;
             FlatRedBall.SpriteManager.AddPositionedObject(this);
-            FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(mCircleInstance, LayerProvidedByContainer);
+            FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(mCollisionCircle, LayerProvidedByContainer);
             mKickIndicatorInstance.AddToManagers(LayerProvidedByContainer);
+            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, LayerProvidedByContainer);
             AddToManagersBottomUp(layerToAddTo);
             CustomInitialize();
         }
@@ -183,14 +190,18 @@ namespace Soccer.Entities
             }
             FlatRedBall.SpriteManager.RemovePositionedObject(this);
             
-            if (CircleInstance != null)
+            if (CollisionCircle != null)
             {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(CircleInstance);
+                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(CollisionCircle);
             }
             if (KickIndicatorInstance != null)
             {
                 KickIndicatorInstance.Destroy();
                 KickIndicatorInstance.Detach();
+            }
+            if (SpriteInstance != null)
+            {
+                FlatRedBall.SpriteManager.RemoveSpriteOneWay(SpriteInstance);
             }
             mGeneratedCollision.RemoveFromManagers(clearThis: false);
             CustomDestroy();
@@ -199,19 +210,29 @@ namespace Soccer.Entities
         {
             bool oldShapeManagerSuppressAdd = FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue;
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = true;
-            if (mCircleInstance.Parent == null)
+            if (mCollisionCircle.Parent == null)
             {
-                mCircleInstance.CopyAbsoluteToRelative();
-                mCircleInstance.AttachTo(this, false);
+                mCollisionCircle.CopyAbsoluteToRelative();
+                mCollisionCircle.AttachTo(this, false);
             }
-            CircleInstance.Radius = 8f;
+            CollisionCircle.Radius = 16f;
+            CollisionCircle.Visible = false;
             if (mKickIndicatorInstance.Parent == null)
             {
                 mKickIndicatorInstance.CopyAbsoluteToRelative();
                 mKickIndicatorInstance.AttachTo(this, false);
             }
+            if (SpriteInstance.Parent == null)
+            {
+                SpriteInstance.CopyAbsoluteToRelative();
+                SpriteInstance.AttachTo(this, false);
+            }
+            SpriteInstance.Texture = SoccerBall;
+            SpriteInstance.TextureScale = 1f;
+            SpriteInstance.Width = 32f;
+            SpriteInstance.Height = 32f;
             mGeneratedCollision = new FlatRedBall.Math.Geometry.ShapeCollection();
-            Collision.Circles.AddOneWay(mCircleInstance);
+            Collision.Circles.AddOneWay(mCollisionCircle);
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = oldShapeManagerSuppressAdd;
         }
         public virtual void AddToManagersBottomUp (FlatRedBall.Graphics.Layer layerToAddTo) 
@@ -221,11 +242,15 @@ namespace Soccer.Entities
         public virtual void RemoveFromManagers () 
         {
             FlatRedBall.SpriteManager.ConvertToManuallyUpdated(this);
-            if (CircleInstance != null)
+            if (CollisionCircle != null)
             {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(CircleInstance);
+                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(CollisionCircle);
             }
             KickIndicatorInstance.RemoveFromManagers();
+            if (SpriteInstance != null)
+            {
+                FlatRedBall.SpriteManager.RemoveSpriteOneWay(SpriteInstance);
+            }
             mGeneratedCollision.RemoveFromManagers(clearThis: false);
         }
         public virtual void AssignCustomVariables (bool callOnContainedElements) 
@@ -234,15 +259,22 @@ namespace Soccer.Entities
             {
                 KickIndicatorInstance.AssignCustomVariables(true);
             }
-            CircleInstance.Radius = 8f;
+            CollisionCircle.Radius = 16f;
+            CollisionCircle.Visible = false;
+            SpriteInstance.Texture = SoccerBall;
+            SpriteInstance.TextureScale = 1f;
+            SpriteInstance.Width = 32f;
+            SpriteInstance.Height = 32f;
             Gravity = -150f;
             Drag = 0.3f;
+            SpriteRotationSpeedModifier = 75;
         }
         public virtual void ConvertToManuallyUpdated () 
         {
             this.ForceUpdateDependenciesDeep();
             FlatRedBall.SpriteManager.ConvertToManuallyUpdated(this);
             KickIndicatorInstance.ConvertToManuallyUpdated();
+            FlatRedBall.SpriteManager.ConvertToManuallyUpdated(SpriteInstance);
         }
         public static void LoadStaticContent (string contentManagerName) 
         {
@@ -273,6 +305,11 @@ namespace Soccer.Entities
                         mRegisteredUnloads.Add(ContentManagerName);
                     }
                 }
+                if (!FlatRedBall.FlatRedBallServices.IsLoaded<Microsoft.Xna.Framework.Graphics.Texture2D>(@"content/entities/ball/soccerball.png", ContentManagerName))
+                {
+                    registerUnload = true;
+                }
+                SoccerBall = FlatRedBall.FlatRedBallServices.Load<Microsoft.Xna.Framework.Graphics.Texture2D>(@"content/entities/ball/soccerball.png", ContentManagerName);
             }
             Soccer.Entities.KickIndicator.LoadStaticContent(contentManagerName);
             if (registerUnload && ContentManagerName != FlatRedBall.FlatRedBallServices.GlobalContentManager)
@@ -297,19 +334,38 @@ namespace Soccer.Entities
             }
             if (LoadedContentManagers.Count == 0)
             {
+                if (SoccerBall != null)
+                {
+                    SoccerBall= null;
+                }
             }
         }
         [System.Obsolete("Use GetFile instead")]
         public static object GetStaticMember (string memberName) 
         {
+            switch(memberName)
+            {
+                case  "SoccerBall":
+                    return SoccerBall;
+            }
             return null;
         }
         public static object GetFile (string memberName) 
         {
+            switch(memberName)
+            {
+                case  "SoccerBall":
+                    return SoccerBall;
+            }
             return null;
         }
         object GetMember (string memberName) 
         {
+            switch(memberName)
+            {
+                case  "SoccerBall":
+                    return SoccerBall;
+            }
             return null;
         }
         protected bool mIsPaused;
@@ -321,18 +377,24 @@ namespace Soccer.Entities
         public virtual void SetToIgnorePausing () 
         {
             FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(this);
-            FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(CircleInstance);
+            FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(CollisionCircle);
             KickIndicatorInstance.SetToIgnorePausing();
+            FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(SpriteInstance);
         }
         public virtual void MoveToLayer (FlatRedBall.Graphics.Layer layerToMoveTo) 
         {
             var layerToRemoveFrom = LayerProvidedByContainer;
             if (layerToRemoveFrom != null)
             {
-                layerToRemoveFrom.Remove(CircleInstance);
+                layerToRemoveFrom.Remove(CollisionCircle);
             }
-            FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(CircleInstance, layerToMoveTo);
+            FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(CollisionCircle, layerToMoveTo);
             KickIndicatorInstance.MoveToLayer(layerToMoveTo);
+            if (layerToRemoveFrom != null)
+            {
+                layerToRemoveFrom.Remove(SpriteInstance);
+            }
+            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, layerToMoveTo);
             LayerProvidedByContainer = layerToMoveTo;
         }
     }

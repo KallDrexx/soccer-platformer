@@ -6,6 +6,7 @@
     <property name="AfterDoubleJump" type="Soccer.DataTypes.PlatformerValues" />
     <property name="Gravity" type="float" default="-150" />
     <property name="Drag" type="float" default="0.3" />
+    <property name="SpriteRotationSpeedModifier" type="int" default="75" />
   </objecttype>
   <objecttype name="KickIndicator">
     <property name="RotationZ" type="float" default="0" />

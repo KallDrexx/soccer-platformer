@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Soccer", "Soccer\Soccer.csproj", "{919321D8-C0F9-4D5C-A4D6-534D715CCDAF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlatRedBallDesktopGL", "..\..\third-party\FlatRedBall\Engines\FlatRedBallXNA\FlatRedBall\FlatRedBallDesktopGL.csproj", "{10BDA06C-7269-4CCE-AE2A-D445F414520A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -18,6 +20,12 @@ Global
 		{919321D8-C0F9-4D5C-A4D6-534D715CCDAF}.DebugWindows|x86.Build.0 = DebugWindows|x86
 		{919321D8-C0F9-4D5C-A4D6-534D715CCDAF}.Release|x86.ActiveCfg = Release|x86
 		{919321D8-C0F9-4D5C-A4D6-534D715CCDAF}.Release|x86.Build.0 = Release|x86
+		{10BDA06C-7269-4CCE-AE2A-D445F414520A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{10BDA06C-7269-4CCE-AE2A-D445F414520A}.Debug|x86.Build.0 = Debug|Any CPU
+		{10BDA06C-7269-4CCE-AE2A-D445F414520A}.DebugWindows|x86.ActiveCfg = Debug|Any CPU
+		{10BDA06C-7269-4CCE-AE2A-D445F414520A}.DebugWindows|x86.Build.0 = Debug|Any CPU
+		{10BDA06C-7269-4CCE-AE2A-D445F414520A}.Release|x86.ActiveCfg = Release|Any CPU
+		{10BDA06C-7269-4CCE-AE2A-D445F414520A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -108,11 +108,11 @@ namespace Soccer.Entities
             }
             if (SpriteInstance.Parent == null)
             {
-                SpriteInstance.X = 20f;
+                SpriteInstance.X = 32f;
             }
             else
             {
-                SpriteInstance.RelativeX = 20f;
+                SpriteInstance.RelativeX = 32f;
             }
             SpriteInstance.Texture = arrow;
             SpriteInstance.TextureScale = 1f;
@@ -139,11 +139,11 @@ namespace Soccer.Entities
             }
             if (SpriteInstance.Parent == null)
             {
-                SpriteInstance.X = 20f;
+                SpriteInstance.X = 32f;
             }
             else
             {
-                SpriteInstance.RelativeX = 20f;
+                SpriteInstance.RelativeX = 32f;
             }
             SpriteInstance.Texture = arrow;
             SpriteInstance.TextureScale = 1f;

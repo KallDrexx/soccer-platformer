@@ -1,0 +1,18 @@
+{
+  "EntityManagementValueList": [
+    {
+      "Name": "Entities\\Ball",
+      "SelectedProperties": [],
+      "InstanceManagementValuesList": [
+        {
+          "SelectedProperties": [],
+          "Name": "CollisionCircle"
+        },
+        {
+          "SelectedProperties": [],
+          "Name": "KickIndicatorInstance"
+        }
+      ]
+    }
+  ]
+}

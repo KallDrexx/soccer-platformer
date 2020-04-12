@@ -26,7 +26,8 @@ namespace Soccer.Entities
         private void CustomActivity()
         {
             
-            
+            SpriteInstance.RelativeRotationZVelocity = -XVelocity / SpriteRotationSpeedModifier;
+
         }
 
         private void CustomDestroy()

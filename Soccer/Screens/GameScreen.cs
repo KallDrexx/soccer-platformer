@@ -10,15 +10,13 @@ namespace Soccer.Screens
 
         void CustomInitialize()
         {
-            Camera.Main.X = Camera.Main.OrthogonalWidth / 2;
-            Camera.Main.Y = Camera.Main.OrthogonalHeight / -2;
-
-            Ball1.KickIndicatorInstance.RelativeRotationZ = MathHelper.ToRadians(180);
+            Camera.Main.AttachTo(PlayerInstance);
+            Camera.Main.RelativeZ = 100;
         }
 
         void CustomActivity(bool firstTimeCalled)
         {
-            if (InputManager.Xbox360GamePads[0].ButtonDown(Xbox360GamePad.Button.RightShoulder))
+            if (InputManager.Xbox360GamePads[0].ButtonDown(Xbox360GamePad.Button.RightTrigger))
             {
                 if (PlayerInstance.BallCatchArea.CollideAgainst(Ball1.Collision))
                 {
@@ -83,7 +81,7 @@ namespace Soccer.Screens
                 var kickBackVelocity = Vector2.Normalize(InputManager.Xbox360GamePads[0].LeftStick.Position) *
                                        -PlayerInstance.KickBackVelocity;
 
-                Ball1.Velocity += new Vector3(ballVelocity.X, ballVelocity.Y, 0);
+                Ball1.Velocity = new Vector3(ballVelocity.X, ballVelocity.Y, 0);
                 PlayerInstance.Velocity += new Vector3(kickBackVelocity.X, kickBackVelocity.Y, 0);;
             }
         }

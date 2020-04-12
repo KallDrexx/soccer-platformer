@@ -25,6 +25,8 @@ namespace Soccer.Entities
         static System.Collections.Generic.List<string> mRegisteredUnloads = new System.Collections.Generic.List<string>();
         static System.Collections.Generic.List<string> LoadedContentManagers = new System.Collections.Generic.List<string>();
         protected static System.Collections.Generic.Dictionary<System.String, Soccer.DataTypes.PlatformerValues> PlatformerValues;
+        protected static Microsoft.Xna.Framework.Graphics.Texture2D hombre;
+        protected static FlatRedBall.Graphics.Animation.AnimationChainList AnimationChainListFile;
         
         private FlatRedBall.Math.Geometry.AxisAlignedRectangle mAxisAlignedRectangleInstance;
         public FlatRedBall.Math.Geometry.AxisAlignedRectangle AxisAlignedRectangleInstance
@@ -50,6 +52,7 @@ namespace Soccer.Entities
                 mBallCatchArea = value;
             }
         }
+        private FlatRedBall.Sprite SpriteInstance;
         public event Action<Soccer.DataTypes.PlatformerValues> BeforeGroundMovementSet;
         public event System.EventHandler AfterGroundMovementSet;
         private Soccer.DataTypes.PlatformerValues mGroundMovement;
@@ -351,6 +354,8 @@ namespace Soccer.Entities
             mAxisAlignedRectangleInstance.Name = "mAxisAlignedRectangleInstance";
             mBallCatchArea = new FlatRedBall.Math.Geometry.Circle();
             mBallCatchArea.Name = "mBallCatchArea";
+            SpriteInstance = new FlatRedBall.Sprite();
+            SpriteInstance.Name = "SpriteInstance";
             
             // this provides default controls for the platformer using either keyboad or 360. Can be overridden in custom code:
             this.InitializeInput();
@@ -396,6 +401,7 @@ namespace Soccer.Entities
             FlatRedBall.SpriteManager.AddPositionedObject(this);
             FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(mAxisAlignedRectangleInstance, LayerProvidedByContainer);
             FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(mBallCatchArea, LayerProvidedByContainer);
+            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, LayerProvidedByContainer);
         }
         public virtual void AddToManagers (FlatRedBall.Graphics.Layer layerToAddTo) 
         {
@@ -403,6 +409,7 @@ namespace Soccer.Entities
             FlatRedBall.SpriteManager.AddPositionedObject(this);
             FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(mAxisAlignedRectangleInstance, LayerProvidedByContainer);
             FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(mBallCatchArea, LayerProvidedByContainer);
+            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, LayerProvidedByContainer);
             CurrentMovementType = MovementType.Ground;
             AddToManagersBottomUp(layerToAddTo);
             CustomInitialize();
@@ -429,6 +436,10 @@ namespace Soccer.Entities
             {
                 FlatRedBall.Math.Geometry.ShapeManager.Remove(BallCatchArea);
             }
+            if (SpriteInstance != null)
+            {
+                FlatRedBall.SpriteManager.RemoveSprite(SpriteInstance);
+            }
             mGeneratedCollision.RemoveFromManagers(clearThis: false);
             CustomDestroy();
         }
@@ -441,14 +452,21 @@ namespace Soccer.Entities
                 mAxisAlignedRectangleInstance.CopyAbsoluteToRelative();
                 mAxisAlignedRectangleInstance.AttachTo(this, false);
             }
-            AxisAlignedRectangleInstance.Width = 16f;
-            AxisAlignedRectangleInstance.Height = 16f;
+            AxisAlignedRectangleInstance.Width = 32f;
+            AxisAlignedRectangleInstance.Height = 32f;
             if (mBallCatchArea.Parent == null)
             {
                 mBallCatchArea.CopyAbsoluteToRelative();
                 mBallCatchArea.AttachTo(this, false);
             }
-            BallCatchArea.Radius = 32f;
+            BallCatchArea.Radius = 64f;
+            BallCatchArea.Visible = false;
+            if (SpriteInstance.Parent == null)
+            {
+                SpriteInstance.CopyAbsoluteToRelative();
+                SpriteInstance.AttachTo(this, false);
+            }
+            SpriteInstance.TextureScale = 1f;
             mGeneratedCollision = new FlatRedBall.Math.Geometry.ShapeCollection();
             Collision.AxisAlignedRectangles.AddOneWay(mAxisAlignedRectangleInstance);
             Collision.Circles.AddOneWay(mBallCatchArea);
@@ -469,6 +487,10 @@ namespace Soccer.Entities
             {
                 FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(BallCatchArea);
             }
+            if (SpriteInstance != null)
+            {
+                FlatRedBall.SpriteManager.RemoveSpriteOneWay(SpriteInstance);
+            }
             mGeneratedCollision.RemoveFromManagers(clearThis: false);
         }
         public virtual void AssignCustomVariables (bool callOnContainedElements) 
@@ -476,9 +498,11 @@ namespace Soccer.Entities
             if (callOnContainedElements)
             {
             }
-            AxisAlignedRectangleInstance.Width = 16f;
-            AxisAlignedRectangleInstance.Height = 16f;
-            BallCatchArea.Radius = 32f;
+            AxisAlignedRectangleInstance.Width = 32f;
+            AxisAlignedRectangleInstance.Height = 32f;
+            BallCatchArea.Radius = 64f;
+            BallCatchArea.Visible = false;
+            SpriteInstance.TextureScale = 1f;
             GroundMovement = Entities.Player.PlatformerValues["Ground"];
             AirMovement = Entities.Player.PlatformerValues["Air"];
             KickVelocity = 500;
@@ -488,6 +512,7 @@ namespace Soccer.Entities
         {
             this.ForceUpdateDependenciesDeep();
             FlatRedBall.SpriteManager.ConvertToManuallyUpdated(this);
+            FlatRedBall.SpriteManager.ConvertToManuallyUpdated(SpriteInstance);
         }
         public static void LoadStaticContent (string contentManagerName) 
         {
@@ -530,6 +555,16 @@ namespace Soccer.Entities
                         PlatformerValues = temporaryCsvObject;
                     }
                 }
+                if (!FlatRedBall.FlatRedBallServices.IsLoaded<Microsoft.Xna.Framework.Graphics.Texture2D>(@"content/entities/player/hombre.png", ContentManagerName))
+                {
+                    registerUnload = true;
+                }
+                hombre = FlatRedBall.FlatRedBallServices.Load<Microsoft.Xna.Framework.Graphics.Texture2D>(@"content/entities/player/hombre.png", ContentManagerName);
+                if (!FlatRedBall.FlatRedBallServices.IsLoaded<FlatRedBall.Graphics.Animation.AnimationChainList>(@"content/entities/player/animationchainlistfile.achx", ContentManagerName))
+                {
+                    registerUnload = true;
+                }
+                AnimationChainListFile = FlatRedBall.FlatRedBallServices.Load<FlatRedBall.Graphics.Animation.AnimationChainList>(@"content/entities/player/animationchainlistfile.achx", ContentManagerName);
             }
             if (registerUnload && ContentManagerName != FlatRedBall.FlatRedBallServices.GlobalContentManager)
             {
@@ -557,6 +592,14 @@ namespace Soccer.Entities
                 {
                     PlatformerValues= null;
                 }
+                if (hombre != null)
+                {
+                    hombre= null;
+                }
+                if (AnimationChainListFile != null)
+                {
+                    AnimationChainListFile= null;
+                }
             }
         }
         [System.Obsolete("Use GetFile instead")]
@@ -566,6 +609,10 @@ namespace Soccer.Entities
             {
                 case  "PlatformerValues":
                     return PlatformerValues;
+                case  "hombre":
+                    return hombre;
+                case  "AnimationChainListFile":
+                    return AnimationChainListFile;
             }
             return null;
         }
@@ -575,11 +622,22 @@ namespace Soccer.Entities
             {
                 case  "PlatformerValues":
                     return PlatformerValues;
+                case  "hombre":
+                    return hombre;
+                case  "AnimationChainListFile":
+                    return AnimationChainListFile;
             }
             return null;
         }
         object GetMember (string memberName) 
         {
+            switch(memberName)
+            {
+                case  "hombre":
+                    return hombre;
+                case  "AnimationChainListFile":
+                    return AnimationChainListFile;
+            }
             return null;
         }
         protected bool mIsPaused;
@@ -593,6 +651,7 @@ namespace Soccer.Entities
             FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(this);
             FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(AxisAlignedRectangleInstance);
             FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(BallCatchArea);
+            FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(SpriteInstance);
         }
         public virtual void MoveToLayer (FlatRedBall.Graphics.Layer layerToMoveTo) 
         {
@@ -607,6 +666,11 @@ namespace Soccer.Entities
                 layerToRemoveFrom.Remove(BallCatchArea);
             }
             FlatRedBall.Math.Geometry.ShapeManager.AddToLayer(BallCatchArea, layerToMoveTo);
+            if (layerToRemoveFrom != null)
+            {
+                layerToRemoveFrom.Remove(SpriteInstance);
+            }
+            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, layerToMoveTo);
             LayerProvidedByContainer = layerToMoveTo;
         }
         
