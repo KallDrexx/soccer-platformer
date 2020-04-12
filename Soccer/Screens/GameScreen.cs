@@ -1,5 +1,7 @@
+using System;
 using FlatRedBall;
 using FlatRedBall.Input;
+using FlatRedBall.Math;
 using Microsoft.Xna.Framework;
 
 namespace Soccer.Screens
@@ -72,17 +74,22 @@ namespace Soccer.Screens
             Ball1.KickIndicatorInstance.SpriteInstanceVisible = false;
             
             // If we are still colliding with the ball, then we are stopping kick selection
-            // due to pressing the button, so we want to propel the ball in the specified direction
+            // due to releasing the button, so we want to propel the ball in the specified direction
             if (PlayerInstance.BallCatchArea.CollideAgainst(Ball1.Collision))
             {
-                var ballVelocity = Vector2.Normalize(InputManager.Xbox360GamePads[0].LeftStick.Position) *
-                                          PlayerInstance.KickVelocity;
+                var angle = InputManager.Xbox360GamePads[0].LeftStick.Angle;
+                var ballVelocity = new Vector3(
+                    (float)Math.Cos(angle) * PlayerInstance.KickVelocity,
+                    (float)Math.Sin(angle) * PlayerInstance.KickVelocity,
+                    0);
                 
-                var kickBackVelocity = Vector2.Normalize(InputManager.Xbox360GamePads[0].LeftStick.Position) *
-                                       -PlayerInstance.KickBackVelocity;
-
-                Ball1.Velocity = new Vector3(ballVelocity.X, ballVelocity.Y, 0);
-                PlayerInstance.Velocity += new Vector3(kickBackVelocity.X, kickBackVelocity.Y, 0);;
+                var kickBackVelocity = new Vector3(
+                    (float)Math.Cos(angle) * PlayerInstance.KickBackVelocity,
+                    (float)Math.Sin(angle) * PlayerInstance.KickBackVelocity,
+                    0); 
+                
+                Ball1.Velocity = ballVelocity;
+                PlayerInstance.Velocity += -kickBackVelocity;
             }
         }
     }
