@@ -16,15 +16,27 @@ namespace Soccer.Screens
         static bool HasBeenLoadedWithGlobalContentManager = false;
         #endif
         protected static Microsoft.Xna.Framework.Graphics.Texture2D Tiles;
+        protected static Microsoft.Xna.Framework.Graphics.Texture2D excellent;
         
         private FlatRedBall.TileCollisions.TileShapeCollection SolidCollision;
         private Soccer.Entities.Player PlayerInstance;
         private FlatRedBall.Math.Collision.DelegateCollisionRelationship<Soccer.Entities.Player, FlatRedBall.TileCollisions.TileShapeCollection> PlayerInstanceAxisAlignedRectangleInstanceVsSolidCollision;
         protected FlatRedBall.TileGraphics.LayeredTileMap Map;
         private FlatRedBall.Math.PositionedObjectList<Soccer.Entities.Ball> BallList;
-        private Soccer.Entities.Ball Ball1;
         private FlatRedBall.Math.Collision.ListVsPositionedObjectRelationship<Entities.Ball, Soccer.Entities.Player> BallListVsPlayerInstanceAxisAlignedRectangleInstance;
         private FlatRedBall.Math.Collision.CollidableListVsTileShapeCollectionRelationship<Entities.Ball> BallListVsSolidCollision;
+        private FlatRedBall.TileCollisions.TileShapeCollection GoalCollision;
+        private FlatRedBall.Math.Collision.DelegateCollisionRelationship<Soccer.Entities.Player, FlatRedBall.TileCollisions.TileShapeCollection> PlayerInstanceAxisAlignedRectangleInstanceVsGoalCollision;
+        private FlatRedBall.Math.Collision.CollidableListVsTileShapeCollectionRelationship<Entities.Ball> BallListCollisionCircleVsGoalCollision;
+        private FlatRedBall.Sprite GoalDisplay;
+        private FlatRedBall.Math.Collision.PositionedObjectVsListRelationship<Soccer.Entities.Player, Entities.Ball> PlayerInstanceBallCatchAreaVsBallListCollisionCircle;
+        private FlatRedBall.TileCollisions.TileShapeCollection UpSpringCollision;
+        private FlatRedBall.Math.Collision.CollidableVsTileShapeCollectionRelationship<Soccer.Entities.Player> PlayerInstanceAxisAlignedRectangleInstanceVsUpSpringCollision;
+        private FlatRedBall.Math.Collision.CollidableListVsTileShapeCollectionRelationship<Entities.Ball> BallListCollisionCircleVsUpSpringCollision;
+        public int GoalDisplayYOffset = 75;
+        public float BaseZoomFactor = 2.5f;
+        public int PlayerSpringAmount = 400;
+        public int BallSpringAmount = 250;
         public GameScreen () 
         	: base ("GameScreen")
         {
@@ -51,8 +63,6 @@ namespace Soccer.Screens
             // Not instantiating for LayeredTileMap Map in Screens\GameScreen (Screen) because properties on the object prevent it
             BallList = new FlatRedBall.Math.PositionedObjectList<Soccer.Entities.Ball>();
             BallList.Name = "BallList";
-            Ball1 = new Soccer.Entities.Ball(ContentManagerName, false);
-            Ball1.Name = "Ball1";
                 BallListVsPlayerInstanceAxisAlignedRectangleInstance = FlatRedBall.Math.Collision.CollisionManager.Self.CreateRelationship(BallList, PlayerInstance);
     BallListVsPlayerInstanceAxisAlignedRectangleInstance.SetSecondSubCollision(item => item.AxisAlignedRectangleInstance);
     BallListVsPlayerInstanceAxisAlignedRectangleInstance.Name = "BallListVsPlayerInstanceAxisAlignedRectangleInstance";
@@ -62,6 +72,40 @@ namespace Soccer.Screens
     BallListVsSolidCollision.Name = "BallListVsSolidCollision";
     BallListVsSolidCollision.SetBounceCollision(0f, 1f, 0.8f);
 
+            GoalCollision = new FlatRedBall.TileCollisions.TileShapeCollection();
+                {
+        var temp = new FlatRedBall.Math.Collision.DelegateCollisionRelationship<Soccer.Entities.Player, FlatRedBall.TileCollisions.TileShapeCollection>(PlayerInstance, GoalCollision);
+        var isCloud = false;
+        temp.CollisionFunction = (first, second) =>
+        {
+            return first.CollideAgainst(second, first.AxisAlignedRectangleInstance, isCloud);
+        }
+        ;
+        FlatRedBall.Math.Collision.CollisionManager.Self.Relationships.Add(temp);
+        PlayerInstanceAxisAlignedRectangleInstanceVsGoalCollision = temp;
+    }
+    PlayerInstanceAxisAlignedRectangleInstanceVsGoalCollision.Name = "PlayerInstanceAxisAlignedRectangleInstanceVsGoalCollision";
+
+                BallListCollisionCircleVsGoalCollision = FlatRedBall.Math.Collision.CollisionManagerTileShapeCollectionExtensions.CreateTileRelationship(FlatRedBall.Math.Collision.CollisionManager.Self, BallList, GoalCollision);
+    BallListCollisionCircleVsGoalCollision.SetFirstSubCollision(item => item.CollisionCircle);
+    BallListCollisionCircleVsGoalCollision.Name = "BallListCollisionCircleVsGoalCollision";
+
+            GoalDisplay = new FlatRedBall.Sprite();
+            GoalDisplay.Name = "GoalDisplay";
+                PlayerInstanceBallCatchAreaVsBallListCollisionCircle = FlatRedBall.Math.Collision.CollisionManager.Self.CreateRelationship(PlayerInstance, BallList);
+    PlayerInstanceBallCatchAreaVsBallListCollisionCircle.SetFirstSubCollision(item => item.BallCatchArea);
+    PlayerInstanceBallCatchAreaVsBallListCollisionCircle.SetSecondSubCollision(item => item.CollisionCircle);
+    PlayerInstanceBallCatchAreaVsBallListCollisionCircle.Name = "PlayerInstanceBallCatchAreaVsBallListCollisionCircle";
+
+            UpSpringCollision = new FlatRedBall.TileCollisions.TileShapeCollection();
+                PlayerInstanceAxisAlignedRectangleInstanceVsUpSpringCollision = FlatRedBall.Math.Collision.CollisionManagerTileShapeCollectionExtensions.CreateTileRelationship(FlatRedBall.Math.Collision.CollisionManager.Self, PlayerInstance, UpSpringCollision);
+    PlayerInstanceAxisAlignedRectangleInstanceVsUpSpringCollision.SetFirstSubCollision(item => item.AxisAlignedRectangleInstance);
+    PlayerInstanceAxisAlignedRectangleInstanceVsUpSpringCollision.Name = "PlayerInstanceAxisAlignedRectangleInstanceVsUpSpringCollision";
+
+                BallListCollisionCircleVsUpSpringCollision = FlatRedBall.Math.Collision.CollisionManagerTileShapeCollectionExtensions.CreateTileRelationship(FlatRedBall.Math.Collision.CollisionManager.Self, BallList, UpSpringCollision);
+    BallListCollisionCircleVsUpSpringCollision.SetFirstSubCollision(item => item.CollisionCircle);
+    BallListCollisionCircleVsUpSpringCollision.Name = "BallListCollisionCircleVsUpSpringCollision";
+
             // normally we wait to set variables until after the object is created, but in this case if the
             // TileShapeCollection doesn't have its Visible set before creating the tiles, it can result in
             // really bad performance issues, as shapes will be made visible, then invisible. Really bad perf!
@@ -70,6 +114,22 @@ namespace Soccer.Screens
                 SolidCollision.Visible = false;
             }
             FlatRedBall.TileCollisions.TileShapeCollectionLayeredTileMapExtensions.AddCollisionFromTilesWithType(SolidCollision, Map, "Solid");
+            // normally we wait to set variables until after the object is created, but in this case if the
+            // TileShapeCollection doesn't have its Visible set before creating the tiles, it can result in
+            // really bad performance issues, as shapes will be made visible, then invisible. Really bad perf!
+            if (GoalCollision != null)
+            {
+                GoalCollision.Visible = false;
+            }
+            FlatRedBall.TileCollisions.TileShapeCollectionLayeredTileMapExtensions.AddCollisionFromTilesWithType(GoalCollision, Map, "Goal");
+            // normally we wait to set variables until after the object is created, but in this case if the
+            // TileShapeCollection doesn't have its Visible set before creating the tiles, it can result in
+            // really bad performance issues, as shapes will be made visible, then invisible. Really bad perf!
+            if (UpSpringCollision != null)
+            {
+                UpSpringCollision.Visible = false;
+            }
+            FlatRedBall.TileCollisions.TileShapeCollectionLayeredTileMapExtensions.AddCollisionFromTilesWithType(UpSpringCollision, Map, "Spring");
             
             
             PostInitialize();
@@ -84,7 +144,7 @@ namespace Soccer.Screens
             Factories.BallFactory.Initialize(ContentManagerName);
             Factories.BallFactory.AddList(BallList);
             PlayerInstance.AddToManagers(mLayer);
-            Ball1.AddToManagers(mLayer);
+            FlatRedBall.SpriteManager.AddSprite(GoalDisplay);
             base.AddToManagers();
             AddToManagersBottomUp();
             CustomInitialize();
@@ -118,6 +178,7 @@ namespace Soccer.Screens
             base.Destroy();
             Factories.BallFactory.Destroy();
             Tiles = null;
+            excellent = null;
             
             BallList.MakeOneWay();
             if (SolidCollision != null)
@@ -133,6 +194,18 @@ namespace Soccer.Screens
             {
                 BallList[i].Destroy();
             }
+            if (GoalCollision != null)
+            {
+                GoalCollision.Visible = false;
+            }
+            if (GoalDisplay != null)
+            {
+                FlatRedBall.SpriteManager.RemoveSprite(GoalDisplay);
+            }
+            if (UpSpringCollision != null)
+            {
+                UpSpringCollision.Visible = false;
+            }
             BallList.MakeTwoWay();
             FlatRedBall.Math.Collision.CollisionManager.Self.Relationships.Clear();
             CustomDestroy();
@@ -141,7 +214,7 @@ namespace Soccer.Screens
         {
             bool oldShapeManagerSuppressAdd = FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue;
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = true;
-            SolidCollision.Visible = true;
+            SolidCollision.Visible = false;
             if (PlayerInstance.Parent == null)
             {
                 PlayerInstance.X = 300f;
@@ -160,24 +233,19 @@ namespace Soccer.Screens
             }
             if (Map!= null)
             {
+                if (Map.Parent == null)
+                {
+                    Map.Z = -50f;
+                }
+                else
+                {
+                    Map.RelativeZ = -50f;
+                }
             }
-            BallList.Add(Ball1);
-            if (Ball1.Parent == null)
-            {
-                Ball1.X = 200f;
-            }
-            else
-            {
-                Ball1.RelativeX = 200f;
-            }
-            if (Ball1.Parent == null)
-            {
-                Ball1.Y = -100f;
-            }
-            else
-            {
-                Ball1.RelativeY = -100f;
-            }
+            GoalCollision.Visible = false;
+            GoalDisplay.Texture = excellent;
+            GoalDisplay.TextureScale = 0.1f;
+            GoalDisplay.Visible = false;
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = oldShapeManagerSuppressAdd;
         }
         public virtual void AddToManagersBottomUp () 
@@ -196,15 +264,26 @@ namespace Soccer.Screens
             {
                 BallList[i].Destroy();
             }
+            if (GoalCollision != null)
+            {
+                GoalCollision.Visible = false;
+            }
+            if (GoalDisplay != null)
+            {
+                FlatRedBall.SpriteManager.RemoveSpriteOneWay(GoalDisplay);
+            }
+            if (UpSpringCollision != null)
+            {
+                UpSpringCollision.Visible = false;
+            }
         }
         public virtual void AssignCustomVariables (bool callOnContainedElements) 
         {
             if (callOnContainedElements)
             {
                 PlayerInstance.AssignCustomVariables(true);
-                Ball1.AssignCustomVariables(true);
             }
-            SolidCollision.Visible = true;
+            SolidCollision.Visible = false;
             if (PlayerInstance.Parent == null)
             {
                 PlayerInstance.X = 300f;
@@ -221,22 +300,14 @@ namespace Soccer.Screens
             {
                 PlayerInstance.RelativeY = -100f;
             }
-            if (Ball1.Parent == null)
-            {
-                Ball1.X = 200f;
-            }
-            else
-            {
-                Ball1.RelativeX = 200f;
-            }
-            if (Ball1.Parent == null)
-            {
-                Ball1.Y = -100f;
-            }
-            else
-            {
-                Ball1.RelativeY = -100f;
-            }
+            GoalCollision.Visible = false;
+            GoalDisplay.Texture = excellent;
+            GoalDisplay.TextureScale = 0.1f;
+            GoalDisplay.Visible = false;
+            GoalDisplayYOffset = 75;
+            BaseZoomFactor = 2.5f;
+            PlayerSpringAmount = 400;
+            BallSpringAmount = 250;
         }
         public virtual void ConvertToManuallyUpdated () 
         {
@@ -248,6 +319,7 @@ namespace Soccer.Screens
             {
                 BallList[i].ConvertToManuallyUpdated();
             }
+            FlatRedBall.SpriteManager.ConvertToManuallyUpdated(GoalDisplay);
         }
         public static void LoadStaticContent (string contentManagerName) 
         {
@@ -266,6 +338,7 @@ namespace Soccer.Screens
             }
             #endif
             Tiles = FlatRedBall.FlatRedBallServices.Load<Microsoft.Xna.Framework.Graphics.Texture2D>(@"content/screens/gamescreen/tiles.png", contentManagerName);
+            excellent = FlatRedBall.FlatRedBallServices.Load<Microsoft.Xna.Framework.Graphics.Texture2D>(@"content/screens/gamescreen/excellent.png", contentManagerName);
             Soccer.Entities.Player.LoadStaticContent(contentManagerName);
             CustomLoadStaticContent(contentManagerName);
         }
@@ -286,6 +359,8 @@ namespace Soccer.Screens
             {
                 case  "Tiles":
                     return Tiles;
+                case  "excellent":
+                    return excellent;
             }
             return null;
         }
@@ -295,6 +370,8 @@ namespace Soccer.Screens
             {
                 case  "Tiles":
                     return Tiles;
+                case  "excellent":
+                    return excellent;
             }
             return null;
         }
@@ -304,6 +381,8 @@ namespace Soccer.Screens
             {
                 case  "Tiles":
                     return Tiles;
+                case  "excellent":
+                    return excellent;
             }
             return null;
         }

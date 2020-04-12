@@ -116,7 +116,7 @@ namespace Soccer.Entities
             }
         }
         public float Gravity = -150f;
-        public int SpriteRotationSpeedModifier = 75;
+        public int SpriteRotationSpeedModifier = 25;
         public int Index { get; set; }
         public bool Used { get; set; }
         private FlatRedBall.Math.Geometry.ShapeCollection mGeneratedCollision;
@@ -215,7 +215,7 @@ namespace Soccer.Entities
                 mCollisionCircle.CopyAbsoluteToRelative();
                 mCollisionCircle.AttachTo(this, false);
             }
-            CollisionCircle.Radius = 16f;
+            CollisionCircle.Radius = 4f;
             CollisionCircle.Visible = false;
             if (mKickIndicatorInstance.Parent == null)
             {
@@ -229,8 +229,8 @@ namespace Soccer.Entities
             }
             SpriteInstance.Texture = SoccerBall;
             SpriteInstance.TextureScale = 1f;
-            SpriteInstance.Width = 32f;
-            SpriteInstance.Height = 32f;
+            SpriteInstance.Width = 8f;
+            SpriteInstance.Height = 8f;
             mGeneratedCollision = new FlatRedBall.Math.Geometry.ShapeCollection();
             Collision.Circles.AddOneWay(mCollisionCircle);
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = oldShapeManagerSuppressAdd;
@@ -259,15 +259,15 @@ namespace Soccer.Entities
             {
                 KickIndicatorInstance.AssignCustomVariables(true);
             }
-            CollisionCircle.Radius = 16f;
+            CollisionCircle.Radius = 4f;
             CollisionCircle.Visible = false;
             SpriteInstance.Texture = SoccerBall;
             SpriteInstance.TextureScale = 1f;
-            SpriteInstance.Width = 32f;
-            SpriteInstance.Height = 32f;
+            SpriteInstance.Width = 8f;
+            SpriteInstance.Height = 8f;
             Gravity = -150f;
             Drag = 0.3f;
-            SpriteRotationSpeedModifier = 75;
+            SpriteRotationSpeedModifier = 25;
         }
         public virtual void ConvertToManuallyUpdated () 
         {

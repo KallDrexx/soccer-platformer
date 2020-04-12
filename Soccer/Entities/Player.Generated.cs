@@ -119,8 +119,8 @@ namespace Soccer.Entities
                 return mAfterDoubleJump;
             }
         }
-        public int KickVelocity = 500;
-        public int KickBackVelocity = 400;
+        public int KickVelocity = 200;
+        public int KickBackVelocity = 200;
         #region Platformer Fields
         /// <summary>
         /// See property for information.
@@ -454,28 +454,28 @@ namespace Soccer.Entities
             }
             if (AxisAlignedRectangleInstance.Parent == null)
             {
-                AxisAlignedRectangleInstance.Y = -8f;
+                AxisAlignedRectangleInstance.Y = -2f;
             }
             else
             {
-                AxisAlignedRectangleInstance.RelativeY = -8f;
+                AxisAlignedRectangleInstance.RelativeY = -2f;
             }
-            AxisAlignedRectangleInstance.Width = 32f;
-            AxisAlignedRectangleInstance.Height = 50f;
+            AxisAlignedRectangleInstance.Width = 8f;
+            AxisAlignedRectangleInstance.Height = 12.5f;
             AxisAlignedRectangleInstance.Visible = false;
             if (mBallCatchArea.Parent == null)
             {
                 mBallCatchArea.CopyAbsoluteToRelative();
                 mBallCatchArea.AttachTo(this, false);
             }
-            BallCatchArea.Radius = 64f;
+            BallCatchArea.Radius = 16f;
             BallCatchArea.Visible = false;
             if (SpriteInstance.Parent == null)
             {
                 SpriteInstance.CopyAbsoluteToRelative();
                 SpriteInstance.AttachTo(this, false);
             }
-            SpriteInstance.TextureScale = 1f;
+            SpriteInstance.TextureScale = 0.25f;
             SpriteInstance.AnimationChains = AnimationChainListFile;
             SpriteInstance.CurrentChainName = "Idle";
             mGeneratedCollision = new FlatRedBall.Math.Geometry.ShapeCollection();
@@ -511,25 +511,25 @@ namespace Soccer.Entities
             }
             if (AxisAlignedRectangleInstance.Parent == null)
             {
-                AxisAlignedRectangleInstance.Y = -8f;
+                AxisAlignedRectangleInstance.Y = -2f;
             }
             else
             {
-                AxisAlignedRectangleInstance.RelativeY = -8f;
+                AxisAlignedRectangleInstance.RelativeY = -2f;
             }
-            AxisAlignedRectangleInstance.Width = 32f;
-            AxisAlignedRectangleInstance.Height = 50f;
+            AxisAlignedRectangleInstance.Width = 8f;
+            AxisAlignedRectangleInstance.Height = 12.5f;
             AxisAlignedRectangleInstance.Visible = false;
-            BallCatchArea.Radius = 64f;
+            BallCatchArea.Radius = 16f;
             BallCatchArea.Visible = false;
-            SpriteInstance.TextureScale = 1f;
+            SpriteInstance.TextureScale = 0.25f;
             SpriteInstance.AnimationChains = AnimationChainListFile;
             SpriteInstance.CurrentChainName = "Idle";
             GroundMovement = Entities.Player.PlatformerValues["Ground"];
             AirMovement = Entities.Player.PlatformerValues["Air"];
             AfterDoubleJump = Entities.Player.PlatformerValues["AirSecondJump"];
-            KickVelocity = 500;
-            KickBackVelocity = 400;
+            KickVelocity = 200;
+            KickBackVelocity = 200;
         }
         public virtual void ConvertToManuallyUpdated () 
         {

@@ -166,6 +166,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Name>PlatformerValues</Name>
     </None>
+    <None Include="content\screens\gamescreen\excellent.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Name>excellent</Name>
+    </None>
     <None Include="content\screens\gamescreen\tiles.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Name>Tiles</Name>

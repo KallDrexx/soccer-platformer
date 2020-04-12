@@ -8,8 +8,12 @@
     <property name="Drag" type="float" default="0.3" />
     <property name="SpriteRotationSpeedModifier" type="int" default="75" />
   </objecttype>
+  <objecttype name="BallSpawn" />
   <objecttype name="KickIndicator">
     <property name="RotationZ" type="float" default="0" />
     <property name="SpriteInstanceVisible" type="bool" default="false" />
+  </objecttype>
+  <objecttype name="PlayerSpawn">
+    <property name="Drag" type="float" default="0" />
   </objecttype>
 </objecttypes>

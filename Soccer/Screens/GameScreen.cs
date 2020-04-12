@@ -2,51 +2,53 @@ using System;
 using FlatRedBall;
 using FlatRedBall.Input;
 using FlatRedBall.Math;
+using FlatRedBall.TileCollisions;
+using FlatRedBall.TileEntities;
 using Microsoft.Xna.Framework;
+using Soccer.Entities;
 
 namespace Soccer.Screens
 {
     public partial class GameScreen
     {
         private bool _isInKickSelectionMode;
+        private bool _playerAttemptingToCatchBall;
+        private Ball _caughtBall;
 
         void CustomInitialize()
         {
+            Camera.Main.OrthogonalHeight /= BaseZoomFactor;
+            Camera.Main.OrthogonalWidth /= BaseZoomFactor;
             Camera.Main.AttachTo(PlayerInstance);
             Camera.Main.RelativeZ = 100;
+            
+            BallListCollisionCircleVsGoalCollision.CollisionOccurred = BallGoalCollisionOccurred;
+            PlayerInstanceBallCatchAreaVsBallListCollisionCircle.CollisionOccurred = BallInPlayerRegion;
+            PlayerInstanceAxisAlignedRectangleInstanceVsUpSpringCollision.CollisionOccurred =
+                (player, collection) => player.YVelocity = PlayerSpringAmount;
+
+            BallListCollisionCircleVsUpSpringCollision.CollisionOccurred =
+                (ball, collection) => ball.YVelocity = BallSpringAmount;
+            
+            GoalDisplay.AttachTo(Camera.Main);
+            GoalDisplay.RelativeZ = -1;
+            GoalDisplay.RelativeY = GoalDisplayYOffset;
+            
+            TileEntityInstantiator.CreateEntitiesFrom(Map);
         }
 
         void CustomActivity(bool firstTimeCalled)
         {
-            if (InputManager.Xbox360GamePads[0].ButtonDown(Xbox360GamePad.Button.RightTrigger))
+            _playerAttemptingToCatchBall = InputManager.Xbox360GamePads[0].ButtonDown(Xbox360GamePad.Button.RightTrigger);
+            if (!_playerAttemptingToCatchBall && _isInKickSelectionMode)
             {
-                if (PlayerInstance.BallCatchArea.CollideAgainst(Ball1.Collision))
-                {
-                    if (!_isInKickSelectionMode)
-                    {
-                        EnableKickDirectionSelection();
-                    }
-                }
-                else
-                {
-                    if (_isInKickSelectionMode)
-                    {
-                        DisableKickDirectionSelection();
-                    }
-                }
-            }
-            else
-            {
-                if (_isInKickSelectionMode)
-                {
-                    DisableKickDirectionSelection();
-                }
+                DisableKickDirectionSelection();
             }
 
             if (_isInKickSelectionMode)
             {
                 // Control ball arrow via analog stick
-                Ball1.KickIndicatorInstance.RelativeRotationZ = (float) InputManager.Xbox360GamePads[0].LeftStick.Angle;
+                _caughtBall.KickIndicatorInstance.RelativeRotationZ = (float) InputManager.Xbox360GamePads[0].LeftStick.Angle;
             }
         }
 
@@ -58,12 +60,14 @@ namespace Soccer.Screens
         {
         }
 
-        private void EnableKickDirectionSelection()
+        private void EnableKickDirectionSelection(Ball ball)
         {
             TimeManager.TimeFactor = 1 / 10f;
             PlayerInstance. InputEnabled = false;
             _isInKickSelectionMode = true;
-            Ball1.KickIndicatorInstance.SpriteInstanceVisible = true;
+            ball.KickIndicatorInstance.SpriteInstanceVisible = true;
+
+            _caughtBall = ball;
         }
 
         private void DisableKickDirectionSelection()
@@ -71,11 +75,11 @@ namespace Soccer.Screens
             TimeManager.TimeFactor = 1;
             PlayerInstance.InputEnabled = true;
             _isInKickSelectionMode = false;
-            Ball1.KickIndicatorInstance.SpriteInstanceVisible = false;
+            _caughtBall.KickIndicatorInstance.SpriteInstanceVisible = false;
             
             // If we are still colliding with the ball, then we are stopping kick selection
             // due to releasing the button, so we want to propel the ball in the specified direction
-            if (PlayerInstance.BallCatchArea.CollideAgainst(Ball1.Collision))
+            if (PlayerInstance.BallCatchArea.CollideAgainst(_caughtBall.CollisionCircle))
             {
                 var angle = InputManager.Xbox360GamePads[0].LeftStick.Angle;
                 var ballVelocity = new Vector3(
@@ -88,9 +92,31 @@ namespace Soccer.Screens
                     (float)Math.Sin(angle) * PlayerInstance.KickBackVelocity,
                     0); 
                 
-                Ball1.Velocity = ballVelocity;
+                _caughtBall.Velocity = ballVelocity;
                 PlayerInstance.Velocity += -kickBackVelocity;
             }
+
+            _caughtBall = null;
+        }
+
+        private void BallInPlayerRegion(Player player, Ball ball)
+        {
+            // If we already have a ball caught, don't change anything
+            if (_caughtBall != null)
+            {
+                return;
+            }
+            
+            if (_playerAttemptingToCatchBall && !_isInKickSelectionMode)
+            {
+                EnableKickDirectionSelection(ball);
+            }
+        }
+
+        private void BallGoalCollisionOccurred(Ball ball, TileShapeCollection map)
+        {
+            ball.Destroy();
+            GoalDisplay.Visible = true;
         }
     }
 }

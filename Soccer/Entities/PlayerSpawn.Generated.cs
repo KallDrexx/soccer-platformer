@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Text;
 namespace Soccer.Entities
 {
-    public partial class KickIndicator : FlatRedBall.PositionedObject, FlatRedBall.Graphics.IDestroyable, FlatRedBall.Performance.IPoolable
+    public partial class PlayerSpawn : FlatRedBall.PositionedObject, FlatRedBall.Graphics.IDestroyable, FlatRedBall.Performance.IPoolable
     {
         // This is made static so that static lazy-loaded content can access it.
         public static string ContentManagerName { get; set; }
@@ -21,32 +21,19 @@ namespace Soccer.Entities
         static object mLockObject = new object();
         static System.Collections.Generic.List<string> mRegisteredUnloads = new System.Collections.Generic.List<string>();
         static System.Collections.Generic.List<string> LoadedContentManagers = new System.Collections.Generic.List<string>();
-        protected static Microsoft.Xna.Framework.Graphics.Texture2D arrow;
         
-        private FlatRedBall.Sprite SpriteInstance;
-        public bool SpriteInstanceVisible
-        {
-            get
-            {
-                return SpriteInstance.Visible;
-            }
-            set
-            {
-                SpriteInstance.Visible = value;
-            }
-        }
         public int Index { get; set; }
         public bool Used { get; set; }
         protected FlatRedBall.Graphics.Layer LayerProvidedByContainer = null;
-        public KickIndicator () 
+        public PlayerSpawn () 
         	: this(FlatRedBall.Screens.ScreenManager.CurrentScreen.ContentManagerName, true)
         {
         }
-        public KickIndicator (string contentManagerName) 
+        public PlayerSpawn (string contentManagerName) 
         	: this(contentManagerName, true)
         {
         }
-        public KickIndicator (string contentManagerName, bool addToManagers) 
+        public PlayerSpawn (string contentManagerName, bool addToManagers) 
         	: base()
         {
             ContentManagerName = contentManagerName;
@@ -55,8 +42,6 @@ namespace Soccer.Entities
         protected virtual void InitializeEntity (bool addToManagers) 
         {
             LoadStaticContent(ContentManagerName);
-            SpriteInstance = new FlatRedBall.Sprite();
-            SpriteInstance.Name = "SpriteInstance";
             
             PostInitialize();
             if (addToManagers)
@@ -68,13 +53,11 @@ namespace Soccer.Entities
         {
             LayerProvidedByContainer = layerToAddTo;
             FlatRedBall.SpriteManager.AddPositionedObject(this);
-            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, LayerProvidedByContainer);
         }
         public virtual void AddToManagers (FlatRedBall.Graphics.Layer layerToAddTo) 
         {
             LayerProvidedByContainer = layerToAddTo;
             FlatRedBall.SpriteManager.AddPositionedObject(this);
-            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, LayerProvidedByContainer);
             AddToManagersBottomUp(layerToAddTo);
             CustomInitialize();
         }
@@ -87,45 +70,16 @@ namespace Soccer.Entities
         {
             if (Used)
             {
-                Factories.KickIndicatorFactory.MakeUnused(this, false);
+                Factories.PlayerSpawnFactory.MakeUnused(this, false);
             }
             FlatRedBall.SpriteManager.RemovePositionedObject(this);
             
-            if (SpriteInstance != null)
-            {
-                FlatRedBall.SpriteManager.RemoveSpriteOneWay(SpriteInstance);
-            }
             CustomDestroy();
         }
         public virtual void PostInitialize () 
         {
             bool oldShapeManagerSuppressAdd = FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue;
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = true;
-            if (SpriteInstance.Parent == null)
-            {
-                SpriteInstance.CopyAbsoluteToRelative();
-                SpriteInstance.AttachTo(this, false);
-            }
-            if (SpriteInstance.Parent == null)
-            {
-                SpriteInstance.X = 16f;
-            }
-            else
-            {
-                SpriteInstance.RelativeX = 16f;
-            }
-            if (SpriteInstance.Parent == null)
-            {
-                SpriteInstance.Z = 1f;
-            }
-            else
-            {
-                SpriteInstance.RelativeZ = 1f;
-            }
-            SpriteInstance.Texture = arrow;
-            SpriteInstance.TextureScale = 1f;
-            SpriteInstance.Width = 8f;
-            SpriteInstance.Height = 8f;
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = oldShapeManagerSuppressAdd;
         }
         public virtual void AddToManagersBottomUp (FlatRedBall.Graphics.Layer layerToAddTo) 
@@ -135,51 +89,18 @@ namespace Soccer.Entities
         public virtual void RemoveFromManagers () 
         {
             FlatRedBall.SpriteManager.ConvertToManuallyUpdated(this);
-            if (SpriteInstance != null)
-            {
-                FlatRedBall.SpriteManager.RemoveSpriteOneWay(SpriteInstance);
-            }
         }
         public virtual void AssignCustomVariables (bool callOnContainedElements) 
         {
             if (callOnContainedElements)
             {
             }
-            if (SpriteInstance.Parent == null)
-            {
-                SpriteInstance.X = 16f;
-            }
-            else
-            {
-                SpriteInstance.RelativeX = 16f;
-            }
-            if (SpriteInstance.Parent == null)
-            {
-                SpriteInstance.Z = 1f;
-            }
-            else
-            {
-                SpriteInstance.RelativeZ = 1f;
-            }
-            SpriteInstance.Texture = arrow;
-            SpriteInstance.TextureScale = 1f;
-            SpriteInstance.Width = 8f;
-            SpriteInstance.Height = 8f;
-            if (Parent == null)
-            {
-                RotationZ = 0f;
-            }
-            else
-            {
-                RelativeRotationZ = 0f;
-            }
-            SpriteInstanceVisible = false;
+            Drag = 0f;
         }
         public virtual void ConvertToManuallyUpdated () 
         {
             this.ForceUpdateDependenciesDeep();
             FlatRedBall.SpriteManager.ConvertToManuallyUpdated(this);
-            FlatRedBall.SpriteManager.ConvertToManuallyUpdated(SpriteInstance);
         }
         public static void LoadStaticContent (string contentManagerName) 
         {
@@ -206,15 +127,10 @@ namespace Soccer.Entities
                 {
                     if (!mRegisteredUnloads.Contains(ContentManagerName) && ContentManagerName != FlatRedBall.FlatRedBallServices.GlobalContentManager)
                     {
-                        FlatRedBall.FlatRedBallServices.GetContentManagerByName(ContentManagerName).AddUnloadMethod("KickIndicatorStaticUnload", UnloadStaticContent);
+                        FlatRedBall.FlatRedBallServices.GetContentManagerByName(ContentManagerName).AddUnloadMethod("PlayerSpawnStaticUnload", UnloadStaticContent);
                         mRegisteredUnloads.Add(ContentManagerName);
                     }
                 }
-                if (!FlatRedBall.FlatRedBallServices.IsLoaded<Microsoft.Xna.Framework.Graphics.Texture2D>(@"content/entities/kickindicator/arrow.png", ContentManagerName))
-                {
-                    registerUnload = true;
-                }
-                arrow = FlatRedBall.FlatRedBallServices.Load<Microsoft.Xna.Framework.Graphics.Texture2D>(@"content/entities/kickindicator/arrow.png", ContentManagerName);
             }
             if (registerUnload && ContentManagerName != FlatRedBall.FlatRedBallServices.GlobalContentManager)
             {
@@ -222,7 +138,7 @@ namespace Soccer.Entities
                 {
                     if (!mRegisteredUnloads.Contains(ContentManagerName) && ContentManagerName != FlatRedBall.FlatRedBallServices.GlobalContentManager)
                     {
-                        FlatRedBall.FlatRedBallServices.GetContentManagerByName(ContentManagerName).AddUnloadMethod("KickIndicatorStaticUnload", UnloadStaticContent);
+                        FlatRedBall.FlatRedBallServices.GetContentManagerByName(ContentManagerName).AddUnloadMethod("PlayerSpawnStaticUnload", UnloadStaticContent);
                         mRegisteredUnloads.Add(ContentManagerName);
                     }
                 }
@@ -238,38 +154,19 @@ namespace Soccer.Entities
             }
             if (LoadedContentManagers.Count == 0)
             {
-                if (arrow != null)
-                {
-                    arrow= null;
-                }
             }
         }
         [System.Obsolete("Use GetFile instead")]
         public static object GetStaticMember (string memberName) 
         {
-            switch(memberName)
-            {
-                case  "arrow":
-                    return arrow;
-            }
             return null;
         }
         public static object GetFile (string memberName) 
         {
-            switch(memberName)
-            {
-                case  "arrow":
-                    return arrow;
-            }
             return null;
         }
         object GetMember (string memberName) 
         {
-            switch(memberName)
-            {
-                case  "arrow":
-                    return arrow;
-            }
             return null;
         }
         protected bool mIsPaused;
@@ -281,16 +178,10 @@ namespace Soccer.Entities
         public virtual void SetToIgnorePausing () 
         {
             FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(this);
-            FlatRedBall.Instructions.InstructionManager.IgnorePausingFor(SpriteInstance);
         }
         public virtual void MoveToLayer (FlatRedBall.Graphics.Layer layerToMoveTo) 
         {
             var layerToRemoveFrom = LayerProvidedByContainer;
-            if (layerToRemoveFrom != null)
-            {
-                layerToRemoveFrom.Remove(SpriteInstance);
-            }
-            FlatRedBall.SpriteManager.AddToLayer(SpriteInstance, layerToMoveTo);
             LayerProvidedByContainer = layerToMoveTo;
         }
     }
