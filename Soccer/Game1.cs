@@ -87,6 +87,8 @@ namespace Soccer
 
             GeneratedInitialize();
 
+            FlatRedBallServices.GraphicsOptions.TextureFilter = TextureFilter.Point;
+
             base.Initialize();
         }
 
