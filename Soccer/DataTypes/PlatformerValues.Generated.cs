@@ -23,10 +23,12 @@ namespace Soccer.DataTypes
         public System.Decimal DownhillMaxSpeedBoostPercentage;
         public const string Air = "Air";
         public const string Ground = "Ground";
+        public const string AirSecondJump = "AirSecondJump";
         public static System.Collections.Generic.List<System.String> OrderedList = new System.Collections.Generic.List<System.String>
         {
         Air
         ,Ground
+        ,AirSecondJump
         };
         
         

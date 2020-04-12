@@ -3,5 +3,8 @@
   <OffsetMultiplier>1</OffsetMultiplier>
   <AnimationChainSettings />
   <ExpandedNode>Run</ExpandedNode>
-  <UnitType>Pixel</UnitType>
+  <ExpandedNode>Idle</ExpandedNode>
+  <ExpandedNode>JumpUp</ExpandedNode>
+  <ExpandedNode>DropDown</ExpandedNode>
+  <UnitType>SpriteSheet</UnitType>
 </AESettingsSave>

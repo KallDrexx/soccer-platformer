@@ -6,11 +6,93 @@
   <AnimationChain>
     <Name>Run</Name>
     <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.05</FrameLength>
+      <LeftCoordinate>64</LeftCoordinate>
+      <RightCoordinate>128</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.05</FrameLength>
+      <LeftCoordinate>128</LeftCoordinate>
+      <RightCoordinate>192</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.05</FrameLength>
+      <LeftCoordinate>192</LeftCoordinate>
+      <RightCoordinate>256</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.05</FrameLength>
+      <LeftCoordinate>256</LeftCoordinate>
+      <RightCoordinate>320</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.05</FrameLength>
+      <LeftCoordinate>320</LeftCoordinate>
+      <RightCoordinate>384</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.05</FrameLength>
+      <LeftCoordinate>384</LeftCoordinate>
+      <RightCoordinate>448</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.05</FrameLength>
+      <LeftCoordinate>448</LeftCoordinate>
+      <RightCoordinate>512</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+  </AnimationChain>
+  <AnimationChain>
+    <Name>Idle</Name>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
       <FrameLength>0.1</FrameLength>
       <LeftCoordinate>0</LeftCoordinate>
-      <RightCoordinate>1</RightCoordinate>
+      <RightCoordinate>64</RightCoordinate>
       <TopCoordinate>0</TopCoordinate>
-      <BottomCoordinate>1</BottomCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+  </AnimationChain>
+  <AnimationChain>
+    <Name>JumpUp</Name>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.1</FrameLength>
+      <LeftCoordinate>576</LeftCoordinate>
+      <RightCoordinate>640</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
+    </Frame>
+  </AnimationChain>
+  <AnimationChain>
+    <Name>DropDown</Name>
+    <Frame>
+      <TextureName>hombre.png</TextureName>
+      <FrameLength>0.1</FrameLength>
+      <LeftCoordinate>704</LeftCoordinate>
+      <RightCoordinate>768</RightCoordinate>
+      <TopCoordinate>0</TopCoordinate>
+      <BottomCoordinate>64</BottomCoordinate>
     </Frame>
   </AnimationChain>
 </AnimationChainArraySave>

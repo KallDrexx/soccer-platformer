@@ -790,6 +790,7 @@
           </Properties>
           <Name>AfterDoubleJump</Name>
           <Type>Soccer.DataTypes.PlatformerValues</Type>
+          <DefaultValue xsi:type="xsd:string">AirSecondJump in PlatformerValues.csv</DefaultValue>
           <SetByDerived>true</SetByDerived>
           <CreatesEvent>true</CreatesEvent>
         </CustomVariable>
@@ -828,7 +829,17 @@
           <CustomProperty>
             <Type>float</Type>
             <Member>Height</Member>
-            <ValueAsFloat>32</ValueAsFloat>
+            <ValueAsFloat>50</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
+            <Member>Y</Member>
+            <ValueAsFloat>-8</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>bool</Type>
+            <Member>Visible</Member>
+            <ValueAsBool>false</ValueAsBool>
           </CustomProperty>
           <Properties>
             <PropertySave>
@@ -884,6 +895,16 @@
             <Type>float</Type>
             <Member>TextureScale</Member>
             <ValueAsFloat>1</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>FlatRedBall.Graphics.Animation.AnimationChainList</Type>
+            <Member>AnimationChains</Member>
+            <ValueAsString>AnimationChainListFile</ValueAsString>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>string</Type>
+            <Member>CurrentChainName</Member>
+            <ValueAsString>Idle</ValueAsString>
           </CustomProperty>
           <Properties>
             <PropertySave>

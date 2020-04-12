@@ -452,8 +452,17 @@ namespace Soccer.Entities
                 mAxisAlignedRectangleInstance.CopyAbsoluteToRelative();
                 mAxisAlignedRectangleInstance.AttachTo(this, false);
             }
+            if (AxisAlignedRectangleInstance.Parent == null)
+            {
+                AxisAlignedRectangleInstance.Y = -8f;
+            }
+            else
+            {
+                AxisAlignedRectangleInstance.RelativeY = -8f;
+            }
             AxisAlignedRectangleInstance.Width = 32f;
-            AxisAlignedRectangleInstance.Height = 32f;
+            AxisAlignedRectangleInstance.Height = 50f;
+            AxisAlignedRectangleInstance.Visible = false;
             if (mBallCatchArea.Parent == null)
             {
                 mBallCatchArea.CopyAbsoluteToRelative();
@@ -467,6 +476,8 @@ namespace Soccer.Entities
                 SpriteInstance.AttachTo(this, false);
             }
             SpriteInstance.TextureScale = 1f;
+            SpriteInstance.AnimationChains = AnimationChainListFile;
+            SpriteInstance.CurrentChainName = "Idle";
             mGeneratedCollision = new FlatRedBall.Math.Geometry.ShapeCollection();
             Collision.AxisAlignedRectangles.AddOneWay(mAxisAlignedRectangleInstance);
             Collision.Circles.AddOneWay(mBallCatchArea);
@@ -498,13 +509,25 @@ namespace Soccer.Entities
             if (callOnContainedElements)
             {
             }
+            if (AxisAlignedRectangleInstance.Parent == null)
+            {
+                AxisAlignedRectangleInstance.Y = -8f;
+            }
+            else
+            {
+                AxisAlignedRectangleInstance.RelativeY = -8f;
+            }
             AxisAlignedRectangleInstance.Width = 32f;
-            AxisAlignedRectangleInstance.Height = 32f;
+            AxisAlignedRectangleInstance.Height = 50f;
+            AxisAlignedRectangleInstance.Visible = false;
             BallCatchArea.Radius = 64f;
             BallCatchArea.Visible = false;
             SpriteInstance.TextureScale = 1f;
+            SpriteInstance.AnimationChains = AnimationChainListFile;
+            SpriteInstance.CurrentChainName = "Idle";
             GroundMovement = Entities.Player.PlatformerValues["Ground"];
             AirMovement = Entities.Player.PlatformerValues["Air"];
+            AfterDoubleJump = Entities.Player.PlatformerValues["AirSecondJump"];
             KickVelocity = 500;
             KickBackVelocity = 400;
         }
